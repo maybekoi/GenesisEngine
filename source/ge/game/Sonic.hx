@@ -24,6 +24,10 @@ class Sonic extends FlxSprite
 	private static inline var GRAVITY_FORCE:Float = 0.21875;
 	private static inline var JUMP_RELEASE_SPEED:Float = -4.0;
 	
+	private static inline var AIR_ACCELERATION_SPEED:Float = 0.09375;
+	private static inline var AIR_DRAG_THRESHOLD:Float = -4.0;
+	private static inline var GROUND_ANGLE_RESET_SPEED:Float = 0.049087;
+	
 	private var groundSpeed:Float = 0;
 	public var ySpeed:Float = 0;
 	private var isJumping:Bool = false;
@@ -57,6 +61,8 @@ class Sonic extends FlxSprite
 		
 		if (isOnGround)
 		{
+			handleGroundMovement();
+			
 			if (FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X)
 			{
 				isJumping = true;
@@ -68,17 +74,37 @@ class Sonic extends FlxSprite
 		}
 		else
 		{
+			handleAirMovement();
+			
 			if (isJumping && !FlxG.keys.pressed.Z && !FlxG.keys.pressed.X && ySpeed < JUMP_RELEASE_SPEED)
 			{
 				ySpeed = JUMP_RELEASE_SPEED;
 			}
 			
-			ySpeed += GRAVITY_FORCE;
+			if (groundAngle != 0)
+			{
+				if (groundAngle > 0)
+				{
+					groundAngle = Math.max(0, groundAngle - GROUND_ANGLE_RESET_SPEED);
+				}
+				else
+				{
+					groundAngle = Math.min(0, groundAngle + GROUND_ANGLE_RESET_SPEED);
+				}
+			}
 		}
 		
-		if (isOnGround)
+		if (!isOnGround)
 		{
-			handleGroundMovement();
+			if (ySpeed < 0 && ySpeed > AIR_DRAG_THRESHOLD)
+			{
+				groundSpeed -= ((groundSpeed / 0.125) / 256);
+			}
+			
+			ySpeed += GRAVITY_FORCE;
+			
+			// SCD Speed Cap:
+			// if (ySpeed > 16) ySpeed = 16;
 		}
 		
 		x += groundSpeed;
@@ -174,6 +200,23 @@ class Sonic extends FlxSprite
 			animation.play("run");
 			lastFacingRight = (groundSpeed > 0);
 			flipX = !lastFacingRight;
+		}
+	}
+	
+	private function handleAirMovement():Void
+	{
+		if (FlxG.keys.pressed.LEFT)
+		{
+			groundSpeed -= AIR_ACCELERATION_SPEED;
+			if (groundSpeed < -TOP_SPEED)
+				groundSpeed = -TOP_SPEED;
+		}
+		
+		if (FlxG.keys.pressed.RIGHT)
+		{
+			groundSpeed += AIR_ACCELERATION_SPEED;
+			if (groundSpeed > TOP_SPEED)
+				groundSpeed = TOP_SPEED;
 		}
 	}
 }
