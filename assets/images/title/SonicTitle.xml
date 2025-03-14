@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="SonicTitle.png">
+	<!-- Created using the Spritesheet and XML generator -->
+	<!-- https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web -->
+	<SubTexture name="Idle0000" x="0" y="182" width="69" height="92" frameX="2" frameY="2" frameWidth="65" frameHeight="88"/>
+	<SubTexture name="Idle0001" x="83" y="92" width="78" height="87" frameX="2" frameY="2" frameWidth="74" frameHeight="83"/>
+	<SubTexture name="Idle0002" x="161" y="92" width="78" height="84" frameX="2" frameY="2" frameWidth="74" frameHeight="80"/>
+	<SubTexture name="Idle0003" x="0" y="92" width="83" height="90" frameX="2" frameY="2" frameWidth="79" frameHeight="86"/>
+	<SubTexture name="Idle0004" x="255" y="0" width="76" height="91" frameX="2" frameY="2" frameWidth="72" frameHeight="87"/>
+	<SubTexture name="Idle0005" x="85" y="0" width="85" height="92" frameX="2" frameY="2" frameWidth="81" frameHeight="88"/>
+	<SubTexture name="Idle0006" x="170" y="0" width="85" height="92" frameX="2" frameY="2" frameWidth="81" frameHeight="88"/>
+	<SubTexture name="Idle0007" x="0" y="0" width="85" height="92" frameX="2" frameY="2" frameWidth="81" frameHeight="88"/>
+</TextureAtlas>

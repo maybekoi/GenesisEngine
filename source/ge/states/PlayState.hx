@@ -17,6 +17,7 @@ class PlayState extends FlxState
 	var engineText:FlxText;
 	override public function create()
 	{
+		trace("PlayState go brr!");
 		map = new FlxOgmo3Loader("assets/data/maps.ogmo", "assets/data/levels/level1.json");
 		walls = map.loadTilemap(Util.getImage("Sonic1_MD_Map_GHZ_blocks"), "Map");
 		walls.follow();
