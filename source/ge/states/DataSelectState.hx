@@ -113,11 +113,11 @@ class DataSelectState extends FlxState
 		}
 		if (FlxG.keys.justPressed.UP)
 		{
-			changeCharacter(-1);
+			changeCharacter(1);
 		}
 		if (FlxG.keys.justPressed.DOWN)
 		{
-			changeCharacter(1);
+			changeCharacter(-1);
 		}
 		if (FlxG.keys.justPressed.BACKSPACE || FlxG.keys.justPressed.ESCAPE)
 		{
