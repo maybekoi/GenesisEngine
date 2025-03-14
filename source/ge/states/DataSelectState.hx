@@ -54,22 +54,28 @@ class DataSelectState extends FlxState
 		add(arrows);
 
 		characters.push(new FlxSprite(669, 432));
-		characters[0].loadGraphic(Util.getImage('datasel/SonicDS'));
+		characters[0].loadGraphic(Util.getImage('datasel/SonicAndTailsDS'));
 		characters[0].scale.set(2.5, 2.5);
 		characters[0].visible = true;
 		add(characters[0]);
 
 		characters.push(new FlxSprite(669, 432));
-		characters[1].loadGraphic(Util.getImage('datasel/TailsDS'));
+		characters[1].loadGraphic(Util.getImage('datasel/SonicDS'));
 		characters[1].scale.set(2.5, 2.5);
 		characters[1].visible = false;
 		add(characters[1]);
 
 		characters.push(new FlxSprite(669, 432));
-		characters[2].loadGraphic(Util.getImage('datasel/KnucklesDS'));
+		characters[2].loadGraphic(Util.getImage('datasel/TailsDS'));
 		characters[2].scale.set(2.5, 2.5);
 		characters[2].visible = false;
 		add(characters[2]);
+
+		characters.push(new FlxSprite(669, 432));
+		characters[3].loadGraphic(Util.getImage('datasel/KnucklesDS'));
+		characters[3].scale.set(2.5, 2.5);
+		characters[3].visible = false;
+		add(characters[3]);
 
 		var boarder:FlxSprite = new FlxSprite(-80).loadGraphic(Util.getImage('datasel/boarder'));
 		boarder.scrollFactor.set(0, 0);
