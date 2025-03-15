@@ -5,6 +5,8 @@ import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 
+using StringTools;
+
 class Sonic extends FlxSprite
 {
 	private static inline var JUMP_FORCE:Float = 6.5;
@@ -42,6 +44,7 @@ class Sonic extends FlxSprite
 	private var controlLockTimer:Float = 0;
 	private var lastFacingRight:Bool = true;
 	private var isRolling:Bool = false;
+	private var boredTimer:Float = 0;
 
 	private static inline var SPINDASH_INITIAL_SPEED:Float = 8.0;
 	private static inline var SPINDASH_MAX_CHARGE:Float = 8.0;
@@ -72,17 +75,25 @@ class Sonic extends FlxSprite
 		loadGraphic("assets/images/Sonic.png", true); 
 		frames = FlxAtlasFrames.fromSparrow("assets/images/Sonic.png", "assets/images/Sonic.xml");
 		
-		animation.addByPrefix("idle", "idle", 24, true);
-		animation.addByPrefix("walk", "walk", 24, true);
-		animation.addByPrefix("run", "run", 24, true);
-		animation.addByPrefix("roll", "roll", 24, true);
-		animation.addByPrefix("spindash", "spindash", 24, true);
-		animation.addByPrefix("down", "down", 24, true);
+		animation.addByPrefix("idle", "idle", 12, true);
+		animation.addByPrefix("walk", "walk", 12, true);
+		animation.addByPrefix("run", "run", 12, true);
+		animation.addByPrefix("roll", "roll", 12, true);
+		animation.addByPrefix("spindash", "spindash", 12, true);
+		animation.addByPrefix("down", "down", 12, true);
+		animation.addByPrefix("boredInit", "bored", 4, false);
+		animation.addByPrefix("boredLoop", "boredLoop", 4, true);
 		
 		animation.play("idle");	
         
         setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
         offset.set(width / 2, height / 4);
+
+        animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
+            if (name == "boredInit" && frameNumber == animation.getByName("boredInit").frames.length - 1) {
+                animation.play("boredLoop");
+            }
+        };
 	}
 
 
@@ -393,13 +404,16 @@ class Sonic extends FlxSprite
 	
 	private function updateAnim():Void
 	{
-		if (FlxG.keys.pressed.LEFT)
+		if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT || 
+			FlxG.keys.pressed.DOWN || FlxG.keys.pressed.Z || 
+			FlxG.keys.pressed.X || !isOnGround || 
+			Math.abs(groundSpeed) > 0.1)
 		{
-			lastFacingRight = false;
+			boredTimer = 0;
 		}
-		else if (FlxG.keys.pressed.RIGHT)
+		else
 		{
-			lastFacingRight = true;
+			boredTimer += FlxG.elapsed;
 		}
 
 		if (isSpindashing)
@@ -433,7 +447,13 @@ class Sonic extends FlxSprite
 		var absSpeed = Math.abs(groundSpeed);
 		if (absSpeed < 0.1)
 		{
-			animation.play("idle");
+			if (boredTimer >= 3) {
+				if (!animation.name.startsWith("bored")) {
+					animation.play("boredInit");
+				}
+			} else {
+				animation.play("idle");
+			}
 			flipX = !lastFacingRight;
 		}
 		else if (absSpeed < 4)

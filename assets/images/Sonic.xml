@@ -6,10 +6,10 @@
 	<SubTexture name="balance0000" x="0" y="0" width="42" height="44" frameX="-1" frameY="-12" frameWidth="66" frameHeight="66"/>
 	<SubTexture name="balance0001" x="42" y="47" width="37" height="43" frameX="-3" frameY="-13" frameWidth="66" frameHeight="66"/>
 	<SubTexture name="ball0000" x="0" y="220" width="34" height="34" frameX="-18" frameY="-17" frameWidth="66" frameHeight="66"/>
-	<SubTexture name="bored10000" x="103" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
-	<SubTexture name="bored20000" x="69" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
-	<SubTexture name="bored0000" x="103" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
-	<SubTexture name="bored0001" x="218" y="82" width="33" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
+	<SubTexture name="boredInit0000" x="103" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
+	<SubTexture name="boredInit0001" x="69" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
+	<SubTexture name="boredLoop0000" x="103" y="132" width="34" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
+	<SubTexture name="boredLoop0001" x="218" y="82" width="33" height="42" frameX="-19" frameY="-14" frameWidth="66" frameHeight="66"/>
 	<SubTexture name="break0000" x="253" y="0" width="34" height="40" frameX="-19" frameY="-16" frameWidth="66" frameHeight="66"/>
 	<SubTexture name="break0001" x="80" y="91" width="38" height="40" frameX="-15" frameY="-16" frameWidth="66" frameHeight="66"/>
 	<SubTexture name="burnt0000" x="0" y="44" width="38" height="47" frameX="-19" frameY="-8" frameWidth="66" frameHeight="66"/>
