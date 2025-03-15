@@ -56,6 +56,15 @@ class Sonic extends FlxSprite
 	private var spindashReleased:Bool = false;
 	private var crouching:Bool = false;
 
+	private static inline var DROP_DASH_SPEED:Float = 8.0;
+	private static inline var DROP_DASH_MAX_SPEED:Float = 12.0;
+	private static inline var DROP_DASH_CHARGE_TIME:Float = 20.0;
+	
+	private var isDropDashing:Bool = false;
+	private var dropDashCharging:Bool = false;
+	private var dropDashChargeTimer:Float = 0.0;
+	private var dropDashDirection:Int = 1;
+
 	public function new()
 	{
 		super();
@@ -85,6 +94,33 @@ class Sonic extends FlxSprite
 		{
 			handleGroundMovement();
 			
+			if (isDropDashing)
+			{
+				var wasMovingBackwards = (groundSpeed > 0 && !lastFacingRight) || 
+									   (groundSpeed < 0 && lastFacingRight);
+				
+				if (groundAngle == 0 && wasMovingBackwards)
+				{
+					groundSpeed = DROP_DASH_SPEED * dropDashDirection;
+				}
+				else
+				{
+					var speedDivisor = wasMovingBackwards ? 2.0 : 4.0;
+					var newSpeed = (groundSpeed / speedDivisor) + (DROP_DASH_SPEED * dropDashDirection);
+					
+					if (Math.abs(newSpeed) > DROP_DASH_MAX_SPEED)
+					{
+						newSpeed = DROP_DASH_MAX_SPEED * (newSpeed > 0 ? 1 : -1);
+					}
+					
+					groundSpeed = newSpeed;
+				}
+				
+				isDropDashing = false;
+				isRolling = true;
+				setSize(ROLLING_WIDTH_RADIUS * 2 + 1, ROLLING_HEIGHT_RADIUS * 2 + 1);
+			}
+			
 			if ((FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X) && !isSpindashing)
 			{
 				isJumping = true;
@@ -99,6 +135,45 @@ class Sonic extends FlxSprite
 		else
 		{
 			handleAirMovement();
+			
+			if (Globals.dropDashActive && isJumping)
+			{
+				if ((FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X) && ySpeed < 0)
+				{
+					dropDashCharging = true;
+					dropDashChargeTimer = 0;
+				}
+				else if (dropDashCharging)
+				{
+					if (FlxG.keys.pressed.Z || FlxG.keys.pressed.X)
+					{
+						dropDashChargeTimer++;
+						if (dropDashChargeTimer >= DROP_DASH_CHARGE_TIME)
+						{
+							isDropDashing = true;
+							if (FlxG.keys.pressed.LEFT)
+							{
+								dropDashDirection = -1;
+								lastFacingRight = false;
+							}
+							else if (FlxG.keys.pressed.RIGHT)
+							{
+								dropDashDirection = 1;
+								lastFacingRight = true;
+							}
+							else
+							{
+								dropDashDirection = lastFacingRight ? 1 : -1;
+							}
+						}
+					}
+					else
+					{
+						dropDashCharging = false;
+						isDropDashing = false;
+					}
+				}
+			}
 			
 			if (isJumping && !FlxG.keys.pressed.Z && !FlxG.keys.pressed.X && ySpeed < JUMP_RELEASE_SPEED)
 			{
@@ -318,6 +393,15 @@ class Sonic extends FlxSprite
 	
 	private function updateAnim():Void
 	{
+		if (FlxG.keys.pressed.LEFT)
+		{
+			lastFacingRight = false;
+		}
+		else if (FlxG.keys.pressed.RIGHT)
+		{
+			lastFacingRight = true;
+		}
+
 		if (isSpindashing)
 		{
 			animation.play("spindash");
@@ -328,12 +412,14 @@ class Sonic extends FlxSprite
 		if (!isOnGround)
 		{
 			animation.play("roll");
+			flipX = !lastFacingRight;
 			return;
 		}
 
 		if (crouching && !isRolling && !isSpindashing)
 		{
 			animation.play("down");
+			flipX = !lastFacingRight;
 			return;
 		}
 		
