@@ -28,6 +28,12 @@ class Sonic extends FlxSprite
 	private static inline var AIR_DRAG_THRESHOLD:Float = -4.0;
 	private static inline var GROUND_ANGLE_RESET_SPEED:Float = 0.049087;
 	
+	private static inline var ROLL_FRICTION_SPEED:Float = 0.0234375;
+	private static inline var ROLL_DECELERATION_SPEED:Float = 0.125;
+	private static inline var ROLL_SPEED_MIN:Float = 0.5;
+	private static inline var ROLL_SPEED_FORCE:Float = 2.0;
+	private static inline var ROLL_TOP_SPEED:Float = 16.0;
+	
 	private var groundSpeed:Float = 0;
 	public var ySpeed:Float = 0;
 	private var isJumping:Bool = false;
@@ -35,6 +41,7 @@ class Sonic extends FlxSprite
 	public var isOnGround:Bool = false;
 	private var controlLockTimer:Float = 0;
 	private var lastFacingRight:Bool = true;
+	private var isRolling:Bool = false;
 
 	public function new()
 	{
@@ -67,6 +74,8 @@ class Sonic extends FlxSprite
 			{
 				isJumping = true;
 				isOnGround = false;
+				isRolling = false;
+				setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
 				
 				groundSpeed -= JUMP_FORCE * Math.sin(groundAngle);
 				ySpeed = -JUMP_FORCE * Math.cos(groundAngle);
@@ -120,46 +129,67 @@ class Sonic extends FlxSprite
 			controlLockTimer -= FlxG.elapsed;
 			if (!FlxG.keys.pressed.LEFT && !FlxG.keys.pressed.RIGHT)
 			{
-				applyFriction();
+				if (isRolling)
+					applyRollFriction();
+				else
+					applyFriction();
 			}
 			return;
 		}
 		
-		if (FlxG.keys.pressed.LEFT)
+		if (FlxG.keys.pressed.DOWN && Math.abs(groundSpeed) >= ROLL_SPEED_MIN)
 		{
-			if (groundSpeed > 0) 
-			{
-				groundSpeed -= DECELERATION_SPEED;
-				if (groundSpeed <= 0)
-					groundSpeed = -0.5;
-			}
-			else if (groundSpeed > -TOP_SPEED)
-			{
-				groundSpeed -= ACCELERATION_SPEED;
-				if (groundSpeed <= -TOP_SPEED)
-					groundSpeed = -TOP_SPEED;
-			}
+			isRolling = true;
+			setSize(ROLLING_WIDTH_RADIUS * 2 + 1, ROLLING_HEIGHT_RADIUS * 2 + 1);
+		}
+		else if (isRolling && Math.abs(groundSpeed) < ROLL_SPEED_MIN)
+		{
+			isRolling = false;
+			setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
 		}
 		
-		if (FlxG.keys.pressed.RIGHT)
+		if (isRolling)
 		{
-			if (groundSpeed < 0)
-			{
-				groundSpeed += DECELERATION_SPEED;
-				if (groundSpeed >= 0)
-					groundSpeed = 0.5;
-			}
-			else if (groundSpeed < TOP_SPEED)
-			{
-				groundSpeed += ACCELERATION_SPEED;
-				if (groundSpeed >= TOP_SPEED)
-					groundSpeed = TOP_SPEED;
-			}
+			handleRollingMovement();
 		}
-		
-		if (!FlxG.keys.pressed.LEFT && !FlxG.keys.pressed.RIGHT)
+		else
 		{
-			applyFriction();
+			if (FlxG.keys.pressed.LEFT)
+			{
+				if (groundSpeed > 0) 
+				{
+					groundSpeed -= DECELERATION_SPEED;
+					if (groundSpeed <= 0)
+						groundSpeed = -0.5;
+				}
+				else if (groundSpeed > -TOP_SPEED)
+				{
+					groundSpeed -= ACCELERATION_SPEED;
+					if (groundSpeed <= -TOP_SPEED)
+						groundSpeed = -TOP_SPEED;
+				}
+			}
+			
+			if (FlxG.keys.pressed.RIGHT)
+			{
+				if (groundSpeed < 0)
+				{
+					groundSpeed += DECELERATION_SPEED;
+					if (groundSpeed >= 0)
+						groundSpeed = 0.5;
+				}
+				else if (groundSpeed < TOP_SPEED)
+				{
+					groundSpeed += ACCELERATION_SPEED;
+					if (groundSpeed >= TOP_SPEED)
+						groundSpeed = TOP_SPEED;
+				}
+			}
+			
+			if (!FlxG.keys.pressed.LEFT && !FlxG.keys.pressed.RIGHT)
+			{
+				applyFriction();
+			}
 		}
 	}
 	
@@ -175,11 +205,63 @@ class Sonic extends FlxSprite
 		}
 	}
 	
+	private function handleRollingMovement():Void
+	{
+		if (FlxG.keys.pressed.LEFT && groundSpeed > 0)
+		{
+			var totalDecel = ROLL_DECELERATION_SPEED + ROLL_FRICTION_SPEED;
+			groundSpeed -= totalDecel;
+			
+			if (groundSpeed > -totalDecel && groundSpeed < totalDecel)
+			{
+				groundSpeed = -0.5;
+			}
+		}
+		else if (FlxG.keys.pressed.RIGHT && groundSpeed < 0)
+		{
+			var totalDecel = ROLL_DECELERATION_SPEED + ROLL_FRICTION_SPEED;
+			groundSpeed += totalDecel;
+			
+			if (groundSpeed > -totalDecel && groundSpeed < totalDecel)
+			{
+				groundSpeed = 0.5;
+			}
+		}
+		else
+		{
+			applyRollFriction();
+		}
+		
+		if (Math.abs(groundSpeed) > ROLL_TOP_SPEED)
+		{
+			groundSpeed = ROLL_TOP_SPEED * (groundSpeed > 0 ? 1 : -1);
+		}
+	}
+	
+	private function applyRollFriction():Void
+	{
+		var frictionToApply = Math.min(Math.abs(groundSpeed), ROLL_FRICTION_SPEED) * (groundSpeed > 0 ? -1 : 1);
+		groundSpeed += frictionToApply;
+		
+		if ((groundSpeed > 0 && groundSpeed + frictionToApply < 0) || 
+			(groundSpeed < 0 && groundSpeed + frictionToApply > 0))
+		{
+			groundSpeed = 0;
+		}
+	}
+	
 	private function updateAnim():Void
 	{
 		if (!isOnGround)
 		{
-			animation.play("roll"); 
+			animation.play("roll");
+			return;
+		}
+		
+		if (isRolling)
+		{
+			animation.play("roll");
+			flipX = !lastFacingRight;
 			return;
 		}
 		

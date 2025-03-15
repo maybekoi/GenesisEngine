@@ -11,6 +11,8 @@ import flixel.tweens.FlxEase;
 import flixel.text.FlxBitmapText;
 import flixel.graphics.frames.FlxBitmapFont;
 import flixel.addons.display.FlxBackdrop;
+import backend.Discord;
+import lime.app.Application;
 
 class TitleState extends FlxState
 {
@@ -25,6 +27,16 @@ class TitleState extends FlxState
     override public function create()
     {
         super.create();
+
+        #if desktop
+        if (!Discord.isInitialized)
+        {
+            Discord.initialize();
+            Application.current.onExit.add (function (exitCode) {
+                Discord.shutdown();
+            });
+        }
+        #end
         
         FlxG.camera.bgColor = FlxColor.BLACK;
         

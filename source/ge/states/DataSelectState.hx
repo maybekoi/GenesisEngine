@@ -53,7 +53,7 @@ class DataSelectState extends FlxState
 		arrows.scale.set(2.5, 2.5);
 		add(arrows);
 
-		characters.push(new FlxSprite(669, 432));
+		characters.push(new FlxSprite(669, 427));
 		characters[0].loadGraphic(Util.getImage('datasel/SonicAndTailsDS'));
 		characters[0].scale.set(2.5, 2.5);
 		characters[0].visible = true;
