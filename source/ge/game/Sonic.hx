@@ -23,7 +23,7 @@ class Sonic extends FlxSprite
 	private static inline var ROLLING_HEIGHT_RADIUS:Float = 14;
 	private static inline var HITBOX_WIDTH_RADIUS:Float = 8;
 
-	private static inline var GRAVITY_FORCE:Float = 0.21875;
+	public static inline var GRAVITY_FORCE:Float = 0.21875;
 	private static inline var JUMP_RELEASE_SPEED:Float = -4.0;
 	
 	private static inline var AIR_ACCELERATION_SPEED:Float = 0.09375;
@@ -36,13 +36,13 @@ class Sonic extends FlxSprite
 	private static inline var ROLL_SPEED_FORCE:Float = 2.0;
 	private static inline var ROLL_TOP_SPEED:Float = 16.0;
 	
-	private var groundSpeed:Float = 0;
+	public var groundSpeed:Float = 0;
 	public var ySpeed:Float = 0;
-	private var isJumping:Bool = false;
+	public var isJumping:Bool = false;
 	public var groundAngle:Float = 0;
 	public var isOnGround:Bool = false;
 	private var controlLockTimer:Float = 0;
-	private var lastFacingRight:Bool = true;
+	public var lastFacingRight:Bool = true;
 	private var isRolling:Bool = false;
 	private var boredTimer:Float = 0;
 
@@ -86,7 +86,7 @@ class Sonic extends FlxSprite
 		
 		animation.play("idle");	
         
-        setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
+        setSize(STANDING_WIDTH_RADIUS * 2 + 4.8, STANDING_HEIGHT_RADIUS * 2 + 4.8);
         offset.set(width / 2, height / 4);
 
         animation.callback = function(name:String, frameNumber:Int, frameIndex:Int) {
@@ -137,7 +137,7 @@ class Sonic extends FlxSprite
 				isJumping = true;
 				isOnGround = false;
 				isRolling = false;
-				setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
+				setSize(STANDING_WIDTH_RADIUS * 2 + 4.8, STANDING_HEIGHT_RADIUS * 2 + 4.8);
 				
 				groundSpeed -= JUMP_FORCE * Math.sin(groundAngle);
 				ySpeed = -JUMP_FORCE * Math.cos(groundAngle);
@@ -276,7 +276,7 @@ class Sonic extends FlxSprite
 			else if (isRolling && Math.abs(groundSpeed) < ROLL_SPEED_MIN)
 			{
 				isRolling = false;
-				setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
+				setSize(STANDING_WIDTH_RADIUS * 2 + 4.8, STANDING_HEIGHT_RADIUS * 2 + 4.8);
 			}
 		}
 		

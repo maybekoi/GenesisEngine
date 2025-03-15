@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="Tails.png">
+	<!-- Created using the Spritesheet and XML generator -->
+	<!-- https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web -->
+	<SubTexture name="idle0000" x="101" y="72" width="25" height="35" frameX="2" frameY="2" frameWidth="21" frameHeight="31"/>
+	<SubTexture name="idle0001" x="141" y="0" width="25" height="35" frameX="2" frameY="2" frameWidth="21" frameHeight="31"/>
+	<SubTexture name="idle0002" x="76" y="72" width="25" height="35" frameX="2" frameY="2" frameWidth="21" frameHeight="31"/>
+	<SubTexture name="walk0000" x="0" y="0" width="48" height="36" frameX="2" frameY="2" frameWidth="44" frameHeight="32"/>
+	<SubTexture name="walk0001" x="96" y="0" width="45" height="36" frameX="2" frameY="2" frameWidth="41" frameHeight="32"/>
+	<SubTexture name="walk0002" x="0" y="36" width="45" height="36" frameX="2" frameY="2" frameWidth="41" frameHeight="32"/>
+	<SubTexture name="walk0003" x="38" y="72" width="38" height="36" frameX="2" frameY="2" frameWidth="34" frameHeight="32"/>
+	<SubTexture name="walk0004" x="48" y="0" width="48" height="36" frameX="2" frameY="2" frameWidth="44" frameHeight="32"/>
+	<SubTexture name="walk0005" x="96" y="36" width="44" height="36" frameX="2" frameY="2" frameWidth="40" frameHeight="32"/>
+	<SubTexture name="walk0006" x="45" y="36" width="45" height="36" frameX="2" frameY="2" frameWidth="41" frameHeight="32"/>
+	<SubTexture name="walk0007" x="0" y="72" width="38" height="36" frameX="2" frameY="2" frameWidth="34" frameHeight="32"/>
+</TextureAtlas>

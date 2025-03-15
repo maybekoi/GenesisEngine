@@ -3,6 +3,10 @@ package ge.states;
 import flixel.FlxState;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import ge.game.Sonic;
+/*
+import ge.game.Tails;
+import ge.game.Knuckles;
+*/
 import flixel.tile.FlxTilemap;
 import flixel.FlxG;
 import flixel.math.FlxRect;
@@ -12,12 +16,11 @@ import ge.ui.HUD;
 import flixel.FlxCamera;
 import flixel.text.FlxText;
 
-
 class PlayState extends FlxState
 {
 	var map:FlxOgmo3Loader;
 	var walls:FlxTilemap;
-	var sonic:Sonic;
+	var player:Dynamic;
 	var engineText:FlxText;
 	var hud:HUD;
 	private var camHUD:FlxCamera;
@@ -44,16 +47,16 @@ class PlayState extends FlxState
 		walls.setTileProperties(2, ANY);
 		add(walls);
 
-		sonic = new Sonic();
+		createPlayer();
 		map.loadEntities(placeEntities, "Entities");
-		add(sonic);
+		add(player);
 
 		hud = new HUD();
 		add(hud);
 
 		hud.cameras = [camHUD];
 
-		camGame.follow(sonic, LOCKON);
+		camGame.follow(player, LOCKON);
 		camGame.setScrollBoundsRect(0, 0, walls.width, walls.height);
 		camGame.zoom = 2.5;
 
@@ -87,24 +90,24 @@ class PlayState extends FlxState
 			DebugFunctions.addScore(100);
 		}
 		
-		var prevY = sonic.y;
+		var prevY = player.y;
 		
-		if (FlxG.collide(sonic, walls))
+		if (FlxG.collide(player, walls))
 		{
-			if (sonic.ySpeed >= 0)
+			if (player.ySpeed >= 0)
 			{
-				sonic.isOnGround = true;
-				sonic.ySpeed = 0;
-				sonic.groundAngle = 0;
+				player.isOnGround = true;
+				player.ySpeed = 0;
+				player.groundAngle = 0;
 			}
 			else
 			{
-				sonic.ySpeed = 0;
+				player.ySpeed = 0;
 			}
 		}
-		else if (sonic.isOnGround && !FlxG.overlap(sonic, walls))
+		else if (player.isOnGround && !FlxG.overlap(player, walls))
 		{
-			sonic.isOnGround = false;
+			player.isOnGround = false;
 		}
 
 		timeAccumulator += elapsed;
@@ -114,11 +117,29 @@ class PlayState extends FlxState
 		}
 	}
 
+	function createPlayer()
+	{
+		switch (Globals.selectedCharacter)
+		{
+			case 0: // Sonic
+				player = new Sonic();
+				// npc = new TailsNPC(player);
+			case 1: // Sonic
+				player = new Sonic();
+			case 2: // Tails
+				//player = new Tails();
+			case 3: // Knuckles
+				//player = new Knuckles();
+			default:
+				player = new Sonic();
+		}
+	}
+
 	function placeEntities(entity:EntityData)
 	{
 		if (entity.name == "Player")
 		{
-			sonic.setPosition(entity.x, entity.y);
+			player.setPosition(entity.x, entity.y);
 		}
 	}
 }
