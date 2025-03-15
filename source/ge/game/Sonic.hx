@@ -43,6 +43,19 @@ class Sonic extends FlxSprite
 	private var lastFacingRight:Bool = true;
 	private var isRolling:Bool = false;
 
+	private static inline var SPINDASH_INITIAL_SPEED:Float = 8.0;
+	private static inline var SPINDASH_MAX_CHARGE:Float = 8.0;
+	private static inline var SPINDASH_CHARGE_INCREMENT:Float = 2.0;
+	
+	private static inline var SPINDASH_CD_CHARGE_TIME:Float = 45.0;
+	private static inline var SPINDASH_CD_SPEED:Float = 12.0;
+	
+	private var isSpindashing:Bool = false;
+	private var spinrev:Float = 0.0;
+	private var spindashChargeTimer:Float = 0.0;
+	private var spindashReleased:Bool = false;
+	private var crouching:Bool = false;
+
 	public function new()
 	{
 		super();
@@ -54,6 +67,8 @@ class Sonic extends FlxSprite
 		animation.addByPrefix("walk", "walk", 24, true);
 		animation.addByPrefix("run", "run", 24, true);
 		animation.addByPrefix("roll", "roll", 24, true);
+		animation.addByPrefix("spindash", "spindash", 24, true);
+		animation.addByPrefix("down", "down", 24, true);
 		
 		animation.play("idle");	
         
@@ -70,7 +85,7 @@ class Sonic extends FlxSprite
 		{
 			handleGroundMovement();
 			
-			if (FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X)
+			if ((FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X) && !isSpindashing)
 			{
 				isJumping = true;
 				isOnGround = false;
@@ -137,58 +152,109 @@ class Sonic extends FlxSprite
 			return;
 		}
 		
-		if (FlxG.keys.pressed.DOWN && Math.abs(groundSpeed) >= ROLL_SPEED_MIN)
+		if (FlxG.keys.pressed.DOWN)
 		{
-			isRolling = true;
-			setSize(ROLLING_WIDTH_RADIUS * 2 + 1, ROLLING_HEIGHT_RADIUS * 2 + 1);
-		}
-		else if (isRolling && Math.abs(groundSpeed) < ROLL_SPEED_MIN)
-		{
-			isRolling = false;
-			setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
-		}
-		
-		if (isRolling)
-		{
-			handleRollingMovement();
+			crouching = true;
+			if (Math.abs(groundSpeed) >= ROLL_SPEED_MIN)
+			{
+				isRolling = true;
+				setSize(ROLLING_WIDTH_RADIUS * 2 + 1, ROLLING_HEIGHT_RADIUS * 2 + 1);
+			}
+			else if (Globals.spindashActive && !isSpindashing && (FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X))
+			{
+				animation.play("spindash");
+				isSpindashing = true;
+				isRolling = true;
+				spinrev = 0;
+				spindashChargeTimer = 0;
+				setSize(ROLLING_WIDTH_RADIUS * 2 + 1, ROLLING_HEIGHT_RADIUS * 2 + 1);
+			}
 		}
 		else
 		{
-			if (FlxG.keys.pressed.LEFT)
+			crouching = false;
+			if (isSpindashing)
 			{
-				if (groundSpeed > 0) 
+				animation.play("spindash");
+				if (Globals.spindashActive)
 				{
-					groundSpeed -= DECELERATION_SPEED;
-					if (groundSpeed <= 0)
-						groundSpeed = -0.5;
+					var releaseSpeed = SPINDASH_INITIAL_SPEED + (Math.floor(spinrev) / 2);
+					groundSpeed = lastFacingRight ? releaseSpeed : -releaseSpeed;
 				}
-				else if (groundSpeed > -TOP_SPEED)
+				else if (spindashChargeTimer >= SPINDASH_CD_CHARGE_TIME)
 				{
-					groundSpeed -= ACCELERATION_SPEED;
-					if (groundSpeed <= -TOP_SPEED)
-						groundSpeed = -TOP_SPEED;
+					groundSpeed = lastFacingRight ? SPINDASH_CD_SPEED : -SPINDASH_CD_SPEED;
 				}
+				isSpindashing = false;
 			}
-			
-			if (FlxG.keys.pressed.RIGHT)
+			else if (isRolling && Math.abs(groundSpeed) < ROLL_SPEED_MIN)
 			{
-				if (groundSpeed < 0)
-				{
-					groundSpeed += DECELERATION_SPEED;
-					if (groundSpeed >= 0)
-						groundSpeed = 0.5;
-				}
-				else if (groundSpeed < TOP_SPEED)
-				{
-					groundSpeed += ACCELERATION_SPEED;
-					if (groundSpeed >= TOP_SPEED)
-						groundSpeed = TOP_SPEED;
-				}
+				isRolling = false;
+				setSize(STANDING_WIDTH_RADIUS * 2 + 1, STANDING_HEIGHT_RADIUS * 2 + 1);
 			}
-			
-			if (!FlxG.keys.pressed.LEFT && !FlxG.keys.pressed.RIGHT)
+		}
+		
+		if (isSpindashing)
+		{
+			if (Globals.spindashActive)
 			{
-				applyFriction();
+				animation.play("spindash");
+				if (FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X)
+				{
+					spinrev = Math.min(spinrev + SPINDASH_CHARGE_INCREMENT, SPINDASH_MAX_CHARGE);
+				}				
+				spinrev -= ((spinrev / 0.125) / 256);
+			}
+			else
+			{
+				spindashChargeTimer++;
+			}
+		}
+		
+		if (!isSpindashing)
+		{
+			if (isRolling )
+			{
+				handleRollingMovement();
+			}
+			else
+			{
+				if (FlxG.keys.pressed.LEFT)
+				{
+					if (groundSpeed > 0) 
+					{
+						groundSpeed -= DECELERATION_SPEED;
+						if (groundSpeed <= 0)
+							groundSpeed = -0.5;
+					}
+					else if (groundSpeed > -TOP_SPEED)
+					{
+						groundSpeed -= ACCELERATION_SPEED;
+						if (groundSpeed <= -TOP_SPEED)
+							groundSpeed = -TOP_SPEED;
+					}
+				}
+				
+				if (FlxG.keys.pressed.RIGHT)
+				{
+					if (groundSpeed < 0)
+					{
+						groundSpeed += DECELERATION_SPEED;
+						if (groundSpeed >= 0)
+							groundSpeed = 0.5;
+					}
+					else if (groundSpeed < TOP_SPEED)
+					{
+						groundSpeed += ACCELERATION_SPEED;
+						if (groundSpeed >= TOP_SPEED)
+							groundSpeed = TOP_SPEED;
+					}
+				}
+				
+				if (!FlxG.keys.pressed.LEFT && !FlxG.keys.pressed.RIGHT)
+				{
+					applyFriction();
+				}
 			}
 		}
 	}
@@ -252,9 +318,22 @@ class Sonic extends FlxSprite
 	
 	private function updateAnim():Void
 	{
+		if (isSpindashing)
+		{
+			animation.play("spindash");
+			flipX = !lastFacingRight;
+			return;
+		}
+
 		if (!isOnGround)
 		{
 			animation.play("roll");
+			return;
+		}
+
+		if (crouching && !isRolling && !isSpindashing)
+		{
+			animation.play("down");
 			return;
 		}
 		

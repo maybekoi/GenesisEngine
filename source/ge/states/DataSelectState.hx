@@ -127,6 +127,10 @@ class DataSelectState extends FlxState
 		{
 			FlxG.switchState(new ge.states.PlayState());
 		}
+		if (FlxG.keys.justPressed.ONE)
+		{
+			FlxG.switchState(new ge.states.FlxTilemapExtTest());
+		}
 
 		if (FlxG.keys.justPressed.ONE)
 		{
