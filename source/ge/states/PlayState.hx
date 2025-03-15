@@ -15,6 +15,8 @@ import flixel.util.FlxColor;
 import ge.ui.HUD;
 import flixel.FlxCamera;
 import flixel.text.FlxText;
+import ge.game.objects.Ring;
+import flixel.group.FlxGroup;
 
 class PlayState extends FlxState
 {
@@ -27,9 +29,12 @@ class PlayState extends FlxState
 	private var camGame:FlxCamera;
 	private var timeAccumulator:Float = 0;
 	var livesText:FlxText;
+	private var rings:FlxTypedGroup<Ring>;
+	private var scatteredRings:FlxTypedGroup<Ring>;
 
 	override public function create()
 	{
+		Globals.resetGameState();
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
@@ -66,6 +71,14 @@ class PlayState extends FlxState
 		engineText.setBorderStyle(OUTLINE, FlxColor.BLUE, 1);
 		add(engineText);
 	
+		rings = new FlxTypedGroup<Ring>();
+		scatteredRings = new FlxTypedGroup<Ring>();
+		
+		map.loadEntities(placeEntities, "Objects");
+		
+		add(rings);
+		add(scatteredRings);
+
 		super.create();
 	}
 
@@ -115,6 +128,11 @@ class PlayState extends FlxState
 			Globals.time++;
 			timeAccumulator -= 1.0;
 		}
+
+		FlxG.overlap(player, rings, collectRing);
+		FlxG.overlap(player, scatteredRings, collectRing);
+		
+		FlxG.collide(scatteredRings, walls);
 	}
 
 	function createPlayer()
@@ -140,6 +158,37 @@ class PlayState extends FlxState
 		if (entity.name == "Player")
 		{
 			player.setPosition(entity.x, entity.y);
+		}
+		else if (entity.name == "Ring" || entity.name == "Rings")
+		{
+			var ring = new Ring(entity.x, entity.y);
+			rings.add(ring);
+		}
+	}
+
+	private function collectRing(player:Sonic, ring:Ring):Void
+	{
+		if (ring.animation.name == "collect") return;
+		
+		ring.collect();
+	}
+
+	private function hitPlayer():Void
+	{
+		if (Globals.rings > 0)
+		{
+			var ringCount:Int = Std.int(Math.min(Globals.rings, 20));
+			Globals.rings = 0;
+			
+			var newRings:Array<Ring> = Ring.scatterRings(player.x, player.y, ringCount);
+			for (ring in newRings)
+			{
+				scatteredRings.add(ring);
+			}
+		}
+		else
+		{
+			trace("we kill sonic.");
 		}
 	}
 }
