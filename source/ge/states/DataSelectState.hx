@@ -125,7 +125,8 @@ class DataSelectState extends FlxState
 		}
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			Globals.selectedCharacter = currentCharacter;
+			Globals.selectedCharacter = currentCharacter;			
+			Globals.currentLevel = 1;
 			FlxG.switchState(new ge.states.PlayState());
 		}
 

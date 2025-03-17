@@ -6,6 +6,7 @@ import flixel.ui.FlxBar;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.util.FlxColor;
+import flixel.tweens.FlxTween;
 
 using StringTools;
 
@@ -19,6 +20,9 @@ class HUD extends FlxSpriteGroup {
 	var scoreCounterText:FlxText;
 	var timeCounterText:FlxText;
 	var ringsCounterText:FlxText;
+
+	private var displayedScore:Int = 0;
+	private var isTweening:Bool = false;
 
 	public function new() {
 		super();
@@ -70,15 +74,28 @@ class HUD extends FlxSpriteGroup {
 	}
 
 	public function updateText() {
-		scoreCounterText.text = "            " + Globals.score;
 		timeCounterText.text = "            " + formatTime(Globals.time);
 		ringsCounterText.text = "            " + Globals.rings;
 		livesText.text = "            " + Globals.lives;
+		if (!isTweening) {
+			scoreCounterText.text = "            " + Globals.score;
+			displayedScore = Globals.score;
+		}
 	}
 
 	public function formatTime(time:Int) {
 		var minutes = Math.floor(time / 60);
 		var seconds = time % 60;
 		return StringTools.lpad(Std.string(minutes), "0", 1) + ":" + StringTools.lpad(Std.string(seconds), "0", 2);
+	}
+
+	public function tweenScore(from:Int, to:Int, duration:Float) {
+		isTweening = true;
+		FlxTween.num(from, to, duration, {}, function(num:Float) {
+			displayedScore = Math.floor(num);
+			scoreCounterText.text = "            " + displayedScore;
+		}).onComplete = function(_) {
+			isTweening = false;
+		};
 	}
 }

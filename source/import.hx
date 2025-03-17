@@ -6,3 +6,4 @@ import ge.Globals;
 import ge.Debug;
 import ge.Debug.DebugFunctions;
 #end
+import ge.StageState;
